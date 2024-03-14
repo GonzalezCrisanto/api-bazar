@@ -2,6 +2,7 @@ package com.trabajo.bazar.service;
 
 import com.trabajo.bazar.model.Producto;
 import com.trabajo.bazar.model.Venta;
+import com.trabajo.bazar.repository.IProductoRepository;
 import com.trabajo.bazar.repository.IVentaRepository;
 import com.trabajo.bazar.ventaClienteDTO.VentaClienteDTO;
 import java.time.LocalDate;
@@ -13,26 +14,27 @@ import org.springframework.stereotype.Service;
 public class VentaService implements IVentaService{
     
     @Autowired
-    private IVentaRepository repo;
+    private IVentaRepository repoV;
+    private IProductoRepository repoP;
 
     @Override
     public void saveVenta(Venta venta){
-        repo.save(venta);
+        repoV.save(venta);
     }
 
     @Override
     public List<Venta> getVentas(){
-        return repo.findAll();
+        return repoV.findAll();
     }
 
     @Override
     public void deleteVenta(Long id){
-        repo.deleteById(id);
+        repoV.deleteById(id);
     }
 
     @Override
     public Venta findVenta(Long id){ 
-        return repo.findById(id).orElse(null);
+        return repoV.findById(id).orElse(null);
     }
 
     @Override
@@ -55,7 +57,7 @@ public class VentaService implements IVentaService{
 
     @Override
     public String getVentaxDia(LocalDate fecha){
-        List<Venta> listaVentas = repo.findAll();
+        List<Venta> listaVentas = repoV.findAll();
         Double montoTotal = 0.0;
         int venta = 0;
         
@@ -70,14 +72,14 @@ public class VentaService implements IVentaService{
 
     @Override
     public VentaClienteDTO getMayorVenta(){
-        List<Venta> listaVentas = repo.findAll();
+        List<Venta> listaVentas = repoV.findAll();
         VentaClienteDTO ventaMayor = new VentaClienteDTO();
         
-        ventaMayor.setCodigoVenta(listaVentas.getFirst().getCodigoVenta());
-        ventaMayor.setTotal(listaVentas.getFirst().getTotal());
-        ventaMayor.setApellidoCliente(listaVentas.getFirst().getCliente().getApellido());
-        ventaMayor.setNombreCliente(listaVentas.getFirst().getCliente().getNombre());
-        ventaMayor.setCantidadProductos(listaVentas.getFirst().getListaProductos().size());
+        ventaMayor.setCodigoVenta(listaVentas.get(0).getCodigoVenta());
+        ventaMayor.setTotal(listaVentas.get(0).getTotal());
+        ventaMayor.setApellidoCliente(listaVentas.get(0).getCliente().getApellido());
+        ventaMayor.setNombreCliente(listaVentas.get(0).getCliente().getNombre());
+        ventaMayor.setCantidadProductos(listaVentas.get(0).getListaProductos().size());
         
         for(Venta aux : listaVentas){
             if(aux.getTotal() > ventaMayor.getTotal()){
@@ -89,6 +91,13 @@ public class VentaService implements IVentaService{
             }
         }
         return ventaMayor;
+    }
+    
+    @Override
+    public void descontarStock(List<Producto> listaProductos){
+        for(Producto aux : listaProductos){
+            
+        }
     }
     
     

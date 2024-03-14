@@ -25,4 +25,5 @@ public interface IVentaService {
     
     public VentaClienteDTO getMayorVenta();
     
+    public void descontarStock(List<Producto> listaProductos);
 }
