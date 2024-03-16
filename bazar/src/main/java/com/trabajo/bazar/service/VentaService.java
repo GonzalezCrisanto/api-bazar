@@ -6,7 +6,10 @@ import com.trabajo.bazar.repository.IProductoRepository;
 import com.trabajo.bazar.repository.IVentaRepository;
 import com.trabajo.bazar.ventaClienteDTO.VentaClienteDTO;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +21,16 @@ public class VentaService implements IVentaService{
     private IProductoRepository repoP;
 
     @Override
-    public void saveVenta(Venta venta){
-        repoV.save(venta);
+    public String saveVenta(Venta venta){
+        String mensaje = "";
+        
+        if(this.checkStock(venta)){
+            repoV.save(venta);
+            mensaje = "La venta se pudo concretar";
+        }else{
+            mensaje = "La venta no se pudo concretar por falta de stock";
+        }
+        return mensaje;
     }
 
     @Override
@@ -94,11 +105,52 @@ public class VentaService implements IVentaService{
     }
     
     @Override
-    public void descontarStock(List<Producto> listaProductos){
-        for(Producto aux : listaProductos){
+    public void discountStock(Map<Long, Integer> cantidadRequerida){
+        
+        for (Map.Entry<Long, Integer> entry : cantidadRequerida.entrySet()) {
+            Long codigoProducto = entry.getKey();
+            int cantidadRequeridaProducto = entry.getValue();
+            Producto producto = repoP.findById(codigoProducto).orElse(null);
             
+            producto.setCantidadDisponible(producto.getCantidadDisponible()-cantidadRequeridaProducto);
+            repoP.save(producto);
         }
     }
+
+    @Override
+    public Boolean checkStock(Venta venta) {
+        Map<Long, Integer> cantidadRequerida = new HashMap<>();
+        List<Producto> listaProductos = venta.getListaProductos();
+        Boolean indicador = true;
+        
+        // Contar la cantidad requerida de cada producto en la lista de productos de la venta
+        for (Producto producto : listaProductos) {
+            if(cantidadRequerida.containsKey(producto.getCodigoProducto())){
+                cantidadRequerida.put(producto.getCodigoProducto(), + 1);
+            }else{
+                cantidadRequerida.put(producto.getCodigoProducto(),1);
+            }
+        }
+        
+        // Verificar si hay suficiente stock para cada producto en la lista
+        for (Map.Entry<Long, Integer> entry : cantidadRequerida.entrySet()) {
+            Long codigoProducto = entry.getKey();
+            int cantidadRequeridaProducto = entry.getValue();
+            Producto producto = repoP.findById(codigoProducto).orElse(null);
+            
+            if (producto.getCantidadDisponible() < cantidadRequeridaProducto) {
+                indicador = false; // No hay suficiente stock para al menos uno de los productos
+            }
+        }
+        
+        if(indicador){
+            this.discountStock(cantidadRequerida);
+        }
+        return indicador; // Hay suficiente stock para todos los productos en la lista
+    }
+
+    
+    
     
     
 }

@@ -5,11 +5,12 @@ import com.trabajo.bazar.model.Venta;
 import com.trabajo.bazar.ventaClienteDTO.VentaClienteDTO;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 
 public interface IVentaService {
     
-    public void saveVenta(Venta venta);
+    public String saveVenta(Venta venta);
     
     public List<Venta> getVentas();
     
@@ -25,5 +26,7 @@ public interface IVentaService {
     
     public VentaClienteDTO getMayorVenta();
     
-    public void descontarStock(List<Producto> listaProductos);
+    public void discountStock(Map<Long, Integer> cantidadRequerida);
+    
+    public Boolean checkStock(Venta venta);
 }

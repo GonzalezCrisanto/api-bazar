@@ -24,8 +24,8 @@ public class VentaController {
     //Crear Venta
     @PostMapping("/ventas/crear")
     public String saveVenta(@RequestBody Venta venta){
-        serv.saveVenta(venta);
-        return "La venta se ha guardado con éxito";
+        String  mensaje = serv.saveVenta(venta);
+        return mensaje;
     }
     
     //Traer todas las ventas
