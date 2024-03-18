@@ -6,7 +6,6 @@ import com.trabajo.bazar.repository.IProductoRepository;
 import com.trabajo.bazar.repository.IVentaRepository;
 import com.trabajo.bazar.ventaClienteDTO.VentaClienteDTO;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,8 +148,4 @@ public class VentaService implements IVentaService{
         return indicador; // Hay suficiente stock para todos los productos en la lista
     }
 
-    
-    
-    
-    
 }

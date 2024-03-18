@@ -1,8 +1,11 @@
 package com.trabajo.bazar.service;
 
+import com.trabajo.bazar.exceptions.ClienteNoEncontradoException;
 import com.trabajo.bazar.model.Cliente;
 import com.trabajo.bazar.repository.IClienteRepository;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,23 +27,36 @@ public class ClienteService implements IClienteService{
 
     @Override
     public void deleteCliente(Long id){
-        repo.deleteById(id);
+        try{
+            this.findCliente(id);
+            repo.deleteById(id);
+        }catch(ClienteNoEncontradoException e){
+            e.getMessage("No se encontró el Cliente que se desea borrar");
+        }
     }
 
     @Override
-    public Cliente findCliente(Long id){
-        return repo.findById(id).orElse(null);
+    public Cliente findCliente(Long id) throws ClienteNoEncontradoException{
+        Cliente cliente = repo.findById(id).orElse(null);
+        
+        if(cliente == null){
+            throw new ClienteNoEncontradoException("Cliente con id " + id + " no encontrado");
+        }
+        return cliente;
     }
 
     @Override
     public void editCliente(Cliente cliente,Long id){
-        Cliente aux = this.findCliente(id);
-        
-        aux.setDni(cliente.getDni());
-        aux.setNombre(cliente.getNombre());
-        aux.setApellido(cliente.getApellido());
-        
-        this.saveCliente(aux);
+        Cliente aux;
+        try {
+            aux = this.findCliente(id);
+            aux.setDni(cliente.getDni());
+            aux.setNombre(cliente.getNombre());
+            aux.setApellido(cliente.getApellido());
+            this.saveCliente(aux);
+        } catch (ClienteNoEncontradoException ex) {
+            Logger.getLogger(ClienteService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     
